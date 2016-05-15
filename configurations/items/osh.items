@@ -1,0 +1,90 @@
+Group gBR1              "Bedroom 1"             <bedroom>       (gFF)
+Group Alarms
+Group deskLights        (deskLights)
+Group gDashboard        (gDashboard)
+Group Weather           (Weather)
+Group persistItems	(persistItems)
+
+/* Lights */
+Switch BR1_desk1        "Left Desk Light"       (gBR1, deskLights, gDashboard)  {mqtt=">[broker:osh/bed/desk1/com:command:ON:1],>[broker:osh/bed/desk1/com:command:OFF:0],<[broker:osh/bed/desk1/stat:state:default]"}
+Switch BR1_desk2        "Right Desk Light"      (gBR1, deskLights, gDashboard)  {mqtt=">[broker:osh/bed/desk2/com:command:ON:1],>[broker:osh/bed/desk2/com:command:OFF:0],<[broker:osh/bed/desk2/stat:state:default]"}
+Switch BR1_desk3        "TV Light"              (gBR1, deskLights, gDashboard)  {mqtt=">[broker:osh/bed/desk3/com:command:ON:1],>[broker:osh/bed/desk3/com:command:OFF:0],<[broker:osh/bed/desk3/stat:state:default]"}
+Switch BR1_desk4        "LED Lights"            (gBR1, deskLights, gDashboard)  {mqtt=">[broker:osh/bed/desk4/com:command:ON:1],>[broker:osh/bed/desk4/com:command:OFF:0],<[broker:osh/bed/desk4/stat:state:default]"}
+Switch BR1_bed1         "Bedside Lights"        (gDashboard)    {mqtt=">[broker:osh/bed/bed1/com:command:ON:1],>[broker:osh/bed/bed1/com:command:OFF:0],<[broker:osh/bed/bed1/stat:state:default]"}
+Switch BR1_wall1        "Wall Light"            (gDashboard)    {mqtt=">[broker:osh/bed/wall1/com:command:ON:1],>[broker:osh/bed/wall1/com:command:OFF:0],<[broker:osh/bed/wall1/stat:state:default]"}
+Switch BR1_nightMode    "Nighttime Mode"        (gDashboard)    {mqtt=">[broker:osh/bed/nightMode/com:command:ON:1],>[broker:osh/bed/nightMode/com:command:OFF:0],<[broker:osh/bed/nightMode/stat:state:default]" autoupdate="false"}
+Switch BR1_All_Off      "All Lights Off"        (gDashboard)    {mqtt="<[broker:osh/bed/allOff:state:default]" autoupdate="false"}
+
+/* Coffee Maker Items */
+Switch Kit_coff_prep    "Coffee Prep"
+Switch Kit_coff_butt    "Coffee Button"         {mqtt="<[broker:osh/kit/coffee/prep:state:default]" autoupdate="false"}
+Switch Kit_coff_command "Coffee Toggle"         {mqtt=">[broker:osh/kit/coffee/com:command:ON:1]" autoupdate="false"}
+Switch Kit_coff_toggle  "Coffee Toggle"         {autoupdate="false"}
+Switch Kit_coff_stat    "Coffee Status"		(persistItems)
+Switch Kit_coff_ready   "Coffee ready to make"
+
+/* Voice Commands */
+String VoiceCommand
+
+/* Alarm Items */
+String alarm_menu "Alarm"
+Switch alarm_trigger    {autoupdate="false"}
+Switch alarm_flash      {autoupdate="false"}
+Switch alarm_switch	(persistItems)
+
+
+/* Door Lock Items */
+Switch door_main        "Door Lock"     (gDashboard)    {mqtt=">[broker:osh/liv/door/com:command:ON:1],>[broker:osh/liv/door/com:command:OFF:0],<[broker:osh/liv/door/stat:state:default]"}
+Switch door_bell        {mqtt="<[broker:osh/liv/door/doorbell:state:default]" autoupdate="false"}
+Switch door_init        {mqtt=">[broker:osh/liv/door/persist:command:OFF:0]" autoupdate="false"}
+
+
+/* Rule Items */
+Switch main_test        {mqtt=">[broker:osh/all/test/com:command:ON:1]"}
+
+/* Testing Items */
+Switch start_com        {mqtt=">[broker:osh/all/start:command:ON:1]"}
+Switch bed1_stat        {mqtt="<[broker:osh/bed/bed1/openhab:state:default]" autoupdate="false"}
+Switch wall1_stat       {mqtt="<[broker:osh/bed/wall1/openhab:state:default]" autoupdate="false"}
+//Switch coffee_stat      {mqtt="<[broker:osh/kit/coffee/openhab:state:default]" autoupdate="false"}
+Switch door_stat        {mqtt="<[broker:osh/liv/door/openhab:state:default]" autoupdate="false"}
+Switch wall1_restart    {mqtt="<[broker:osh/bed/wall1/openhab:state:default]"}
+Switch bed1_restart     {mqtt="<[broker:osh/bed/bed1/reconnect:state:default]"}
+Switch coffee_restart   {mqtt="<[broker:osh/kit/coffee/reconnect:state:default]"}
+Switch door_restart     {mqtt="<[broker:osh/liv/door/openhab:state:default]"}
+Switch wall1_temp1
+Switch wall1_temp2
+Switch deskAllOff       {mqtt=">[broker:osh/bed/desk/allOff:command:ON:1]" autoupdate="false"}
+Switch allOff           {mqtt="<[broker:osh/bed/all/allOff:state:default]" autoupdate="false"}
+Switch dashboardUpdate
+
+Switch  changeTemp
+
+/* Weather Items */
+Number        Weather_Temperature     "Temperature [%.2f °F]"         (Weather)       {weather="locationId=home, type=temperature, property=current, unit=fahrenheit"}
+String        Weather_Condition       "Condition [%s]"        (Weather)       {weather="locationId=home, type=condition, property=text"}
+String  Weather_Code            "Condition id [%s]"     (Weather)       {weather="locationId=home, type=condition, property=id"}
+Number  Weather_Temp_Max_0      "Temperature max [%.2f °F]"     (Weather)       {weather="locationId=home, type=temperature, property=max, unit=fahrenheit, forecast=0"}
+Number  Weather_Temp_Min_0      "Temperature min [%.2f °F]"     (Weather)       {weather="locationId=home, type=temperature, property=min, unit=fahrenheit, forecast=0"}
+Number  Weather_Humidity        "Humidity [%d %%]"      (Weather)       {weather="locationId=home, type=atmosphere, property=humidity"}
+Number  Weather_Pressure        "Pressure [%.2f in]"    (Weather)       {weather="locationId=home, type=atmosphere, property=pressure, unit=inches"}
+Number  Weather_Temp_Max_1      "Temperature max [%.2f °F]"     (Weather)       {weather="locationId=home, forecast=1, type=temperature, property=max, unit=fahrenheit"}
+Number  Weather_Temp_Min_1      "Temperature min [%.2f °F]"     (Weather)       {weather="locationId=home, forecast=1, type=temperature, property=min, unit=fahrenheit"}
+DateTime        Weather_ObsTime "Observation time [%1$td.%1$tm.%1$tY %1$tH:%1$tM]"   (Weather)  {weather="locationId=home, type=condition, property=observationTime"}
+String  Weather_Code_1          "Condition id [%s]"     (Weather)       {weather="locationId=home, forecast=1, type=condition, property=id"}
+Number  Weather_Precipitation   "Precip probability [%d %%]"    (Weather)       {weather="locationId=home2, type=precipitation, property=probability, forecast=0"}
+Number  Weather_Precipitation_1 "Precip probability [%d %%]"    (Weather)       {weather="locationId=home2, forecast=1, type=precipitation, property=probability, forecast=1"}
+Number  Weather_Wind_Speed      "Windspeed [%.2f km/h]" (Weather)       {weather="locationId=home, type=wind, property=speed"}
+String  Weather_Wind_Direction  "Wind direction [%s]"   (Weather)       {weather="locationId=home, type=wind, property=direction"}
+Number  Weather_Wind_Gust       "Wind gust [%.2f km/h]" (Weather)       {weather="locationId=home, type=wind, property=gust"}
+//Number  Weather_Temperature2    "Temp TESTER [%.2f F]"  (Weather)       {weather="locationId=home, type=temperature, property=current, unit=fahrenheit"}
+
+Number  targetTemp              "Temperature Set to: [%.1f °F]"	(persistItems)
+Number  roomTemp                "Room Temperature: [%.1f °F]"	(persistItems)
+Switch  fanStatus
+String  thermoTemp              (gDashboard)
+String  roomStatus              (gDashboard)
+Switch  fan_state               (gDashboard, persistItems)
+Switch  heatac                  (gDashboard, persistItems)
+Switch  thermoPow		(persistItems)
+

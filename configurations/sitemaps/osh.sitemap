@@ -1,0 +1,36 @@
+sitemap osh label="Owen Satellite House"
+{
+/*      Frame label="Desk Lights" {
+                Switch item=BR1_desk1 label="Left Desk Light"
+                Switch item=BR1_desk2 label="Right Desk Light"
+                Switch item=BR1_desk3 label="TV Light"
+                Switch item=BR1_desk4 label="LED Lights"
+        } */
+        Frame label="Desk Lights" {
+                Group item=deskLights label="Desk Lights" icon="light"
+        }
+        Frame label="Wall Functions" {
+                Switch item=BR1_wall1 label="Wall Light"
+        }
+        Frame label="Night Lights" {
+                Switch item=BR1_bed1 label="Bedside Light"
+                Switch item=BR1_All_Off label="All Off" mappings=[ON="All Off"]
+                Switch item=BR1_nightMode label="Nighttime Mode" icon="moon" mappings=[ON="Lights Out"]
+        }
+        Frame label="Coffee Maker" {
+                Switch item=Kit_coff_butt label="Make Some Coffee" mappings=[ON="Coffee"]
+                Switch item=Kit_coff_ready label="Coffee Maker Prepped"
+                Switch item=Kit_coff_stat label="Coffee Maker Status"
+        }
+        Frame label="Front Door Options" {
+                Switch item=door_main label="Front Door Lock" icon="lock"
+        }
+        Frame label="Alarm Options" {
+                Switch item=alarm_switch label="Alarm Switch"
+        }
+        Frame label="Weather TEst" {
+                Group item=Weather label="weather"
+        }
+}
+
+

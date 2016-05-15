@@ -1,0 +1,13 @@
+Strategies {
+	everyMinute : "0 * * * * ?"
+	everyHour   : "0 0 * * * ?"
+	everyDay    : "0 0 0 * * ?"
+
+	default = everyChange, everyUpdate
+}
+
+Items {
+	persistItems* : strategy = everyChange, everyUpdate, restoreOnStartup
+	Weather* : strategy = everyChange, everyUpdate, restoreOnStartup
+}
+

@@ -1,0 +1,314 @@
+import org.openhab.model.script.actions.Timer
+import org.joda.time.*
+
+rule "startup rules"
+when
+        System started
+then
+        createTimer(now.plusSeconds(6)) [|start_com.sendCommand(ON)
+					  dashboardUpdate.sendCommand(ON)]
+        wall1_temp1.sendCommand(OFF)
+        wall1_temp2.sendCommand(OFF)
+        Kit_coff_prep.sendCommand(OFF)
+        //thermoTemp.postUpdate(70.0)
+        restartItem.sendCommand(ON)
+end
+
+
+rule "voice commands"
+when
+        Item VoiceCommand received command
+then
+        var String command = VoiceCommand.state.toString.toLowerCase
+        if command.contains("wall")
+        {
+                if (BR1_wall1.state == ON)
+                {
+                        BR1_wall1.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_wall1.sendCommand(ON)
+                }
+        }
+        if command.contains("all off")
+        {
+                BR1_All_Off.sendCommand(OFF)
+        }
+        if (command.contains("bedside") || command.contains("bed") || command.contains("add"))
+        {
+                if (BR1_bed1.state == ON)
+                {
+                        BR1_bed1.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_bed1.sendCommand(ON)
+                }
+        }
+        if (command.contains("night") || command.contains("mode"))
+        {
+                BR1_nightMode.sendCommand(ON)
+        }
+        if (command.contains("desk one") || command.contains("left desk") || command.contains("desc1"))
+        {
+                if (BR1_desk1.state == ON)
+                {
+                        BR1_desk1.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_desk1.sendCommand(ON)
+                }
+        }
+        if (command.contains("desk two") || command.contains("right desk") || command.contains("desc2"))
+        {
+                if (BR1_desk2.state == ON)
+                {
+                        BR1_desk2.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_desk2.sendCommand(ON)
+                }
+        }
+        if (command.contains("desk three") || command.contains("tv") || command.contains("desc3"))
+        {
+                if (BR1_desk3.state == ON)
+                {
+                        BR1_desk3.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_desk3.sendCommand(ON)
+                }
+        }
+        if (command.contains("desk for") || command.contains("led") || command.contains("desc4") || command.contains("desk four"))
+        {
+                if (BR1_desk4.state == ON)
+                {
+                        BR1_desk4.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_desk4.sendCommand(ON)
+                }
+        }
+        if (command.contains("make") && command.contains("coffee"))
+        {
+                Kit_coff_toggle.sendCommand(ON)
+        }
+        if (command.contains("door"))
+        {
+                if (command.contains("lock"))
+                {
+                        door_main.sendCommand(ON)
+                }
+                if (command.contains("unlock"))
+                {
+                        door_main.sendCommand(OFF)
+                }
+        }
+end
+
+
+rule "alarm flasher"
+
+when
+        Item alarm_flash received command ON
+then
+
+        createTimer(now.plusSeconds(1)) [|BR1_wall1.sendCommand(OFF)]
+        createTimer(now.plusSeconds(2)) [|BR1_wall1.sendCommand(ON)]
+        createTimer(now.plusSeconds(2)) [|if (alarm_switch.state == OFF) {BR1_nightMode.sendCommand(ON) BR1_wall1.sendCommand(ON)}]
+
+end
+
+rule "alarm trigger"
+when
+        Item alarm_trigger received command ON
+then
+        BR1_wall1.sendCommand(OFF)
+//      pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Time to get up!")
+        var i = 0
+        var lengthAlarm = 2
+        while (i < 30)
+        {
+                createTimer(now.plusSeconds(i*lengthAlarm)) [|if (alarm_switch.state == ON) {alarm_flash.sendCommand(ON)}]
+                i = i + 1
+        }
+end
+
+
+rule "All Off Button"
+when
+        Item BR1_All_Off received command ON or
+        Item allOff received update
+then
+        BR1_wall1.sendCommand(OFF)
+        BR1_bed1.sendCommand(OFF)
+        deskAllOff.sendCommand(ON)
+end
+
+
+rule "coffee"
+when
+        Item Kit_coff_butt received update
+then
+        if (Kit_coff_prep.state == OFF)
+        {
+                Kit_coff_prep.sendCommand(ON)
+                createTimer(now.plusSeconds(1)) [|Kit_coff_prep.sendCommand(OFF)]
+                Kit_coff_ready.sendCommand(ON)
+        }
+        else
+        {
+                Kit_coff_toggle.sendCommand(ON)
+                Kit_coff_prep.sendCommand(OFF)
+                createTimer(now.plusSeconds(2)) [|Kit_coff_ready.sendCommand(OFF)]
+        }
+end
+
+
+rule "coffee toggle"
+when
+        Item Kit_coff_toggle received command ON
+then
+        if ((Kit_coff_ready.state == ON) && (Kit_coff_stat.state == ON))
+        {
+                Kit_coff_stat.sendCommand(OFF)
+                Kit_coff_command.sendCommand(ON)
+                pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Coffee Shutoff")
+        }
+        else if ((Kit_coff_ready.state == ON) && (Kit_coff_stat.state == OFF))
+        {
+                Kit_coff_stat.sendCommand(ON)
+                Kit_coff_command.sendCommand(ON)
+                Kit_coff_ready.sendCommand(OFF)
+                pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Coffee is Brewing!")
+        }
+        else if ((Kit_coff_ready.state == OFF) && (Kit_coff_stat.state == ON))
+        {
+                Kit_coff_stat.sendCommand(OFF)
+                Kit_coff_command.sendCommand(ON)
+                pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Coffee Shutoff")
+        }
+end
+
+
+rule "restart door"
+when
+        Item door_restart received update
+then
+        pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Door Lock Restarted")
+        if (door_main.state == OFF)
+        {
+                door_init.sendCommand(OFF)
+        }
+end
+
+rule "restart wall1"
+when
+        Item wall1_restart received update
+then
+        pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Wall Switch Restarted")
+end
+
+rule "restart bed1"
+when
+        Item bed1_restart received update
+then
+        pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Bed Switch Restarted")
+end
+
+rule "restart coffee"
+when
+        Item coffee_restart received update
+then
+        pushover("azR46zxQYdovp3w1dKRBtQWX8zmZac", "uVWdfLHKzx57bvgdL638Yz5Hg87oi2", "Coffee Controller Restarted")
+end
+
+rule "wall double press 1"
+when
+        Item BR1_wall1 received update ON
+then
+        if (wall1_temp2.state == OFF)
+        {
+                wall1_temp1.sendCommand(ON)
+                createTimer(now.plusSeconds(1)) [|wall1_temp1.sendCommand(OFF)]
+        }
+        else
+        {
+                if (BR1_bed1.state == ON)
+                {
+                        BR1_bed1.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_bed1.sendCommand(ON)
+                }
+                wall1_temp1.sendCommand(OFF)
+        }
+end
+
+rule "wall double press 2"
+when
+        Item BR1_wall1 received update OFF
+then
+        if (wall1_temp1.state == OFF)
+        {
+                wall1_temp2.sendCommand(ON)
+                createTimer(now.plusSeconds(1)) [|wall1_temp2.sendCommand(OFF)]
+        }
+        else
+        {
+                if (BR1_bed1.state == ON)
+                {
+                        BR1_bed1.sendCommand(OFF)
+                }
+                else
+                {
+                        BR1_bed1.sendCommand(ON)
+                }
+                wall1_temp2.sendCommand(OFF)
+        }
+end
+
+/*rule "periodic tester"
+when
+        Time cron "0 0 * * * ?"
+        Time cron "0 10 * * * ?"
+        Time cron "0 20 * * * ?"
+        Time cron "0 30 * * * ?"
+        Time cron "0 40 * * * ?"
+        Time cron "0 50 * * * ?"
+then
+        start_com.sendCommand(ON)
+end*/
+
+
+rule "nightMode"
+when
+        Item BR1_nightMode received update ON or
+        Item BR1_nightMode received command ON
+then
+        BR1_desk1.sendCommand(OFF)
+        BR1_desk2.sendCommand(OFF)
+        BR1_desk3.sendCommand(ON)
+        BR1_desk4.sendCommand(OFF)
+end
+
+rule "nightMode off"
+when
+        Item BR1_nightMode received command OFF
+then
+        BR1_All_Off.sendCommand(ON)
+end
+
+rule "thermo change"
+when
+        Item thermoTemp changed
+then
+        //change
+end
+
